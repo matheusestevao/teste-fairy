@@ -16,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::controller(UserController::class)->prefix('users')->name('users.')->group(function()  {
+    Route::get('', 'index')->name('index');
+    Route::post('import_document', 'import_document')->name('import_documents');
+});
