@@ -39,9 +39,8 @@ class ProccessUsers implements ShouldQueue
         OccupationUserService $occupationUserService
     ): void
     {
-        $fileContent = Storage::get($this->file);
-        $lines = explode(PHP_EOL, $fileContent);
-
+        $lines = explode(PHP_EOL, $this->file);
+        
         foreach ($lines as $line) {
             $data = str_getcsv($line);
 
