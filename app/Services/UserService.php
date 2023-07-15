@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Jobs\ProccessUsers;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class UserService
@@ -39,5 +41,21 @@ class UserService
     public function get_user_to_email(string $email): ?object
     {
         return User::whereEmail($email)->first();
+    }
+
+    public function get_users(): array
+    {
+        $users = User::join('occupation_users', 'occupation_users.user_id', '=', 'users.id')
+                        ->select(
+                            'users.*',
+                            'occupation_users.salary',
+                            DB::raw('DATEDIFF(COALESCE(termination_date, CURRENT_TIMESTAMP), hire_date) AS time_service')
+                        )
+                        ->hasOccupationUsers()
+                        ->orderBy('occupation_users.salary')
+                        ->get()
+                        ->toArray();
+
+        return $users;
     }
 }

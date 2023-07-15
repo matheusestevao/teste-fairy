@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\OccupationUser;
-use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class OccupationUserService

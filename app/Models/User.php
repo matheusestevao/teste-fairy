@@ -4,12 +4,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -51,6 +53,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    protected $dates = [
+        'hire_date',
+        'termination_date'
+    ];
+
     public function occupations(): BelongsToMany
     {
         return $this->belongsToMany(Occupation::class, 'occupation_users')
@@ -63,5 +70,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Occupation::class, 'occupation_users')
                     ->whereNull('occupation_users.deleted_at')
                     ->withTimestamps();
+    }
+
+    public function scopehasOccupationUsers(Builder  $query)
+    {
+        $query->whereExists(function ($query){
+                    $query->select(DB::raw(1))
+                            ->from('occupation_users')
+                            ->whereColumn('occupation_users.user_id', 'users.id');
+                });
     }
 }
