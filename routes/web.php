@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,6 +19,6 @@ Route::get('/', function () {
 });
 
 Route::controller(UserController::class)->prefix('users')->name('users.')->group(function()  {
-    Route::get('', 'index')->name('index');
-    Route::post('import_document', 'import_document')->name('import_documents');
+    Route::get('/', 'index')->name('index');
+    Route::match(['get', 'post'], 'import', 'import')->name('import');
 });

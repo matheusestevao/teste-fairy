@@ -2,64 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\UserImportFileRequest;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected UserService $userService
+    )
+    {
+        //
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function import(UserImportFileRequest $request)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(UserRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UserRequest $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $this->userService->read_file($request->file('file'));
+        
+        return redirect()
+                ->route('users.import')
+                ->with('success', 'Estamos processando o arquivo. Ao terminar, iremos lhe notificar por e-mail.');
     }
 }
