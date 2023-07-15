@@ -48,14 +48,13 @@ class UserService
         $users = User::join('occupation_users', 'occupation_users.user_id', '=', 'users.id')
                         ->select(
                             'users.*',
-                            'occupation_users.salary',
+                            DB::raw('occupation_users.salary / 100 as salary'),
                             DB::raw('DATEDIFF(COALESCE(termination_date, CURRENT_TIMESTAMP), hire_date) AS time_service')
                         )
                         ->hasOccupationUsers()
                         ->orderBy('occupation_users.salary')
-                        ->get()
-                        ->toArray();
+                        ->get();
 
-        return $users;
+        return $users->load('occupations', 'occupation_actual')->toArray();
     }
 }
