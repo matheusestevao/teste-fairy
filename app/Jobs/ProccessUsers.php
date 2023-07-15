@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\FinishImportUser;
 use App\Services\OccupationService;
 use App\Services\OccupationUserService;
 use App\Services\UserService;
@@ -10,6 +11,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class ProccessUsers implements ShouldQueue
 {
@@ -19,7 +23,8 @@ class ProccessUsers implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        protected array $data,
+        protected string $file,
+        protected string $email
     )
     {
         //
@@ -34,14 +39,31 @@ class ProccessUsers implements ShouldQueue
         OccupationUserService $occupationUserService
     ): void
     {
-        $occupaction = $occupationService->get_occupation_to_name($this->data[3]);
-        
-        $user = $userService->get_user_to_email($this->data[5]);
+        $fileContent = Storage::get($this->file);
+        $lines = explode(PHP_EOL, $fileContent);
 
-        if (empty($user)) {
-            $userService->store_to_import($this->data);
-        } else {
-            $occupationUserService->occupation_action($occupaction->id, $user->id, ($this->data[4] * 100));
+        foreach ($lines as $line) {
+            $data = str_getcsv($line);
+
+            if (count($data) !== 6) {
+                continue;
+            }
+            
+            if($data[0] !== 'Nome') {
+                $occupaction = $occupationService->get_occupation_to_name($data[3]);
+        
+                $user = $userService->get_user_to_email($data[5]);
+
+                if (empty($user)) {
+                    $userService->store_to_import($data);
+                } else {
+                    $occupationUserService->occupation_action($occupaction->id, $user->id, ($data[4] * 100));
+                }
+            }
         }
+
+        Mail::to($this->email)->send(new FinishImportUser());
+
+        Storage::delete($this->file);
     }
 }

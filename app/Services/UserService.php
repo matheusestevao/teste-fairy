@@ -16,19 +16,6 @@ class UserService
         //
     }
 
-    public function read_file($file)
-    {
-        $readFile = fopen($file, 'r');
-
-        while (($data = fgetcsv($readFile, null, ',')) !== false) {
-            if($data[0] !== 'Nome') {
-                ProccessUsers::dispatch($data);
-            }
-        }
-
-        fclose($readFile);
-    }
-
     public function store_to_import(array $data): ?object
     {
         try {
@@ -45,8 +32,6 @@ class UserService
     
             return $user;
         } catch (\Throwable $th) {
-            throw $th->getMessage();
-
             Log::info($th->getFile() . ' - ' . $th->getLine() . ' - ' . print_r($th->getMessage(), 1));
         }
     }

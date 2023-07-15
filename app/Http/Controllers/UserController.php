@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserImportFileRequest;
+use App\Jobs\ProccessUsers;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -24,7 +26,10 @@ class UserController extends Controller
 
     public function import(UserImportFileRequest $request)
     {
-        $this->userService->read_file($request->file('file'));
+        $file = $request->file('file');
+        $tempPath = $file->store('temp');
+
+        ProccessUsers::dispatch($tempPath, Auth::user()->email)->onQueue('import');
         
         return redirect()
                 ->route('users.import')

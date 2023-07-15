@@ -27,9 +27,7 @@ class OccupationUserService
                 'occupation_id' => $occupation,
                 'salary' => $salary
             ]);
-        } catch (\Throwable $th) {
-            throw new ($th->getMessage());
-            
+        } catch (\Throwable $th) {            
             Log::info($th->getFile() . ' - ' . $th->getLine() . ' - ' . print_r($th->getMessage(), 1));
         }
     }
